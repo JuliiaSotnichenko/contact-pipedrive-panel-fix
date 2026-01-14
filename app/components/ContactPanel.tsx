@@ -66,6 +66,35 @@ export default function ContactPanel() {
     try {
       console.log('ContactPanel: location', window.location.href);
       console.log('ContactPanel: window.name', window.name);
+      // Also check if host provided context via URL params (some examples do)
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const dataParam = params.get('data');
+        if (dataParam) {
+          console.log('ContactPanel: found data in URL params, parsing');
+          const parsed = JSON.parse(decodeURIComponent(dataParam));
+          // If parsed is an object with `data` array, map same as message handler
+          if (parsed?.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
+            const item = parsed.data[0];
+            const mapped: any = {
+              id: item.id,
+              name: item.header ?? item.name ?? item.title,
+              email: item.email ?? null,
+              phone: item.phone ?? null,
+              organization: item.manufacturer ?? item.organization ?? item.project ?? null,
+              lastContact: item.delivery_date ?? null,
+              dealValue: item.delivery_cost ? `${item.delivery_cost.code} ${item.delivery_cost.value}` : null,
+              status: item.status?.label ?? (item.status ?? null),
+              _raw: item
+            };
+            console.log('ContactPanel: mapped URL data to panel shape', mapped);
+            setContactData(mapped);
+            setLoading(false);
+          }
+        }
+      } catch (e) {
+        /* ignore parsing errors */
+      }
     } catch (err) {
       /* ignore */
     }
