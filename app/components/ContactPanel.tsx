@@ -24,6 +24,28 @@ export default function ContactPanel() {
           console.log('ContactPanel: setting contactData from Pipedrive payload', payload.data ?? payload);
           setContactData(payload.data ?? payload);
           setLoading(false);
+          return;
+        }
+
+        // Some Pipedrive example payloads (and other hosts) send an object with
+        // a `data` array. Accept that shape and map its first item to our UI.
+        if (!payload.type && payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          const item = payload.data[0];
+          const mapped: any = {
+            id: item.id,
+            name: item.header ?? item.name ?? item.title,
+            email: item.email ?? item.contact_email ?? null,
+            phone: item.phone ?? item.contact_phone ?? null,
+            organization: item.manufacturer ?? item.organization ?? item.project ?? null,
+            lastContact: item.delivery_date ?? item.lastContact ?? null,
+            dealValue: item.delivery_cost ? `${item.delivery_cost.code} ${item.delivery_cost.value}` : item.dealValue ?? null,
+            status: item.status?.label ?? (item.status ?? null),
+            _raw: item
+          };
+          console.log('ContactPanel: mapped host data to panel shape', mapped);
+          setContactData(mapped);
+          setLoading(false);
+          return;
         }
       } catch (err) {
         console.error('ContactPanel: error handling message', err);
@@ -86,6 +108,7 @@ export default function ContactPanel() {
     return () => {
       window.removeEventListener('message', handleMessage);
       clearTimeout(fallback);
+      try { clearInterval(retry); } catch (e) { /* ignore */ }
     };
   }, []);
 
