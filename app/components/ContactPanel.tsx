@@ -310,6 +310,26 @@ export default function ContactPanel() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Marketing Info</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {renderSingleDropdown(
+              'hasKids', 
+              contactData?.hasKids, 
+              ['Yes', 'No', 'Unknown'], 
+              <Baby className="w-5 h-5 text-gray-400" />, 
+              'Has Kids'
+            )}
+            {renderMultiDropdown(
+              'giftsSent', 
+              contactData?.giftsSent || [], 
+              ['Birthday Card', 'Holiday Gift', 'Welcome Package', 'Thank You Note', 'Product Sample', 'Voucher'], 
+              <Gift className="w-5 h-5 text-gray-400" />, 
+              'Gifts Sent'
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-blue-50 rounded-lg p-4">
