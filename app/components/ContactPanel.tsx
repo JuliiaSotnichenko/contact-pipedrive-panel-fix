@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin } from 'lucide-react';
+import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin, Edit3, Check, X } from 'lucide-react';
 import AppExtensionsSDK, { Command } from '@pipedrive/app-extensions-sdk';
 
 export default function ContactPanel() {
@@ -9,6 +9,8 @@ export default function ContactPanel() {
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<Array<{id: number; text: string; timestamp: string}>>([]);
   const [newNote, setNewNote] = useState('');
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
     console.log('ContactPanel: mounted - NEW VERSION WITH SDK');
@@ -79,6 +81,71 @@ export default function ContactPanel() {
     }
   };
 
+  const startEdit = (field: string, currentValue: string) => {
+    setEditingField(field);
+    setEditValue(currentValue);
+  };
+
+  const saveEdit = () => {
+    if (editingField && editValue.trim()) {
+      setContactData((prev: any) => ({
+        ...prev,
+        [editingField]: editValue
+      }));
+    }
+    setEditingField(null);
+    setEditValue('');
+  };
+
+  const cancelEdit = () => {
+    setEditingField(null);
+    setEditValue('');
+  };
+
+  const renderEditableField = (field: string, value: string, icon: any) => {
+    const isEditing = editingField === field;
+    
+    return (
+      <div className="flex items-center space-x-3">
+        {icon}
+        <div className="flex-1">
+          <p className="text-sm text-gray-500 capitalize">{field === 'lastContact' ? 'Last Contact' : field}</p>
+          {isEditing ? (
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                className="text-gray-900 bg-transparent border-b border-blue-500 focus:outline-none flex-1"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveEdit();
+                  if (e.key === 'Escape') cancelEdit();
+                }}
+              />
+              <button onClick={saveEdit} className="text-green-600 hover:text-green-700">
+                <Check className="w-4 h-4" />
+              </button>
+              <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2 group">
+              <p className="text-gray-900">{value}</p>
+              <button 
+                onClick={() => startEdit(field, value)}
+                className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-600 transition-opacity"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6 bg-gray-50 w-full" style={{ minHeight: 350 }}>
@@ -95,8 +162,38 @@ export default function ContactPanel() {
             <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{contactData?.name}</h1>
+            <div className="flex-1">
+              {editingField === 'name' ? (
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="text-2xl font-bold text-gray-900 bg-transparent border-b border-blue-500 focus:outline-none"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveEdit();
+                      if (e.key === 'Escape') cancelEdit();
+                    }}
+                  />
+                  <button onClick={saveEdit} className="text-green-600 hover:text-green-700">
+                    <Check className="w-5 h-5" />
+                  </button>
+                  <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 group">
+                  <h1 className="text-2xl font-bold text-gray-900">{contactData?.name}</h1>
+                  <button 
+                    onClick={() => startEdit('name', contactData?.name)}
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-600 transition-opacity"
+                  >
+                    <Edit3 className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
               <span className="inline-block px-3 py-1 mt-1 text-sm font-medium text-green-700 bg-green-100 rounded-full">
                 {contactData?.status}
               </span>
@@ -104,41 +201,11 @@ export default function ContactPanel() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="flex items-center space-x-3">
-              <Mail className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="text-gray-900">{contactData?.email}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-500">Phone</p>
-                <p className="text-gray-900">{contactData?.phone}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Building2 className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-500">Organization</p>
-                <p className="text-gray-900">{contactData?.organization}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <MapPin className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-500">Address</p>
-                <p className="text-gray-900">{contactData?.address}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-500">Last Contact</p>
-                <p className="text-gray-900">{contactData?.lastContact}</p>
-              </div>
-            </div>
+            {renderEditableField('email', contactData?.email, <Mail className="w-5 h-5 text-gray-400" />)}
+            {renderEditableField('phone', contactData?.phone, <Phone className="w-5 h-5 text-gray-400" />)}
+            {renderEditableField('organization', contactData?.organization, <Building2 className="w-5 h-5 text-gray-400" />)}
+            {renderEditableField('address', contactData?.address, <MapPin className="w-5 h-5 text-gray-400" />)}
+            {renderEditableField('lastContact', contactData?.lastContact, <Calendar className="w-5 h-5 text-gray-400" />)}
           </div>
         </div>
 
