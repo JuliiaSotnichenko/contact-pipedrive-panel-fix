@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Building2, Calendar, MessageSquare } from 'lucide-react';
+import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin } from 'lucide-react';
 import AppExtensionsSDK, { Command } from '@pipedrive/app-extensions-sdk';
 
 export default function ContactPanel() {
@@ -31,10 +31,11 @@ export default function ContactPanel() {
         // Load data from fallback for testing
         setContactData({
           id: 1,
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          phone: '+1 234 567 8900',
+          name: 'Jetflier',
+          email: 'j***@*****.com',
+          phone: '+1 ***-***-8900',
           organization: 'Acme Corporation',
+          address: '123 Business St, Suite 100, New York, NY 10001',
           lastContact: '2025-01-10',
           dealValue: '$15,000',
           status: 'Active'
@@ -46,10 +47,11 @@ export default function ContactPanel() {
         // Set fallback data anyway
         setContactData({
           id: 1,
-          name: 'John Doe (Fallback)',
-          email: 'john.doe@example.com',
-          phone: '+1 234 567 8900',
+          name: 'Jetflier (Fallback)',
+          email: 'j***@*****.com',
+          phone: '+1 ***-***-8900',
           organization: 'Acme Corporation',
+          address: '123 Business St, Suite 100, New York, NY 10001',
           lastContact: '2025-01-10',
           dealValue: '$15,000',
           status: 'Active'
@@ -88,20 +90,6 @@ export default function ContactPanel() {
   return (
     <div className="bg-gray-50 p-6 w-full" style={{ minHeight: 420 }}>
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="bg-white rounded-lg shadow p-4 border border-dashed">
-          <h2 className="text-lg font-semibold mb-2">Test Data</h2>
-          <p className="text-sm text-gray-600">ID: {contactData?.id ?? '—'}</p>
-          <p className="text-sm text-gray-600">Name: {contactData?.name ?? '—'}</p>
-          <p className="text-sm text-gray-600">Status: {contactData?.status ?? contactData?._raw?.status?.label ?? '—'}</p>
-          <p className="text-sm text-gray-600">Deal Value: {contactData?.dealValue ?? (contactData?._raw?.delivery_cost ? `${contactData._raw.delivery_cost.code} ${contactData._raw.delivery_cost.value}` : '—')}</p>
-          <p className="text-sm text-gray-600">Note: {contactData?._raw?.note?.value ?? contactData?._raw?.note ?? '—'}</p>
-          <p className="text-sm text-gray-600">Tracking: {contactData?._raw?.tracking?.value ?? '—'}</p>
-          <details className="mt-2">
-            <summary className="text-sm text-blue-600 cursor-pointer">Raw payload</summary>
-            <pre className="text-xs overflow-auto max-h-48 p-2">{JSON.stringify(contactData?._raw ?? contactData, null, 2)}</pre>
-          </details>
-        </div>
-
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center space-x-4 mb-4">
             <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
@@ -135,6 +123,13 @@ export default function ContactPanel() {
               <div>
                 <p className="text-sm text-gray-500">Organization</p>
                 <p className="text-gray-900">{contactData?.organization}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <MapPin className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Address</p>
+                <p className="text-gray-900">{contactData?.address}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
