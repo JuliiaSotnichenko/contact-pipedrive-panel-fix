@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin, Edit3, Check, X } from 'lucide-react';
+import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin, Edit3, Check, X, ChevronDown, Baby, Gift } from 'lucide-react';
 import AppExtensionsSDK, { Command } from '@pipedrive/app-extensions-sdk';
 
 export default function ContactPanel() {
@@ -11,6 +11,7 @@ export default function ContactPanel() {
   const [newNote, setNewNote] = useState('');
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [showDropdown, setShowDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('ContactPanel: mounted - NEW VERSION WITH SDK');
@@ -40,7 +41,9 @@ export default function ContactPanel() {
           address: '123 Business St, Suite 100, New York, NY 10001',
           lastContact: '2025-01-10',
           dealValue: '$15,000',
-          status: 'Active'
+          status: 'Active',
+          hasKids: 'Yes',
+          giftsSent: ['Birthday Card', 'Holiday Gift']
         });
         setLoading(false);
         console.log('ContactPanel: data set and loading complete');
@@ -56,7 +59,9 @@ export default function ContactPanel() {
           address: '123 Business St, Suite 100, New York, NY 10001',
           lastContact: '2025-01-10',
           dealValue: '$15,000',
-          status: 'Active'
+          status: 'Active',
+          hasKids: 'Yes',
+          giftsSent: ['Birthday Card', 'Holiday Gift']
         });
         setLoading(false);
       }
@@ -100,6 +105,101 @@ export default function ContactPanel() {
   const cancelEdit = () => {
     setEditingField(null);
     setEditValue('');
+  };
+
+  const handleSingleSelect = (field: string, value: string) => {
+    setContactData((prev: any) => ({
+      ...prev,
+      [field]: value
+    }));
+    setShowDropdown(null);
+  };
+
+  const handleMultiSelect = (field: string, value: string) => {
+    setContactData((prev: any) => {
+      const currentValues = prev[field] || [];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter((v: string) => v !== value)
+        : [...currentValues, value];
+      return {
+        ...prev,
+        [field]: newValues
+      };
+    });
+  };
+
+  const renderSingleDropdown = (field: string, value: string, options: string[], icon: any, label: string) => {
+    const isOpen = showDropdown === field;
+    
+    return (
+      <div className="flex items-center space-x-3">
+        {icon}
+        <div className="flex-1 relative">
+          <p className="text-sm text-gray-500">{label}</p>
+          <button
+            onClick={() => setShowDropdown(isOpen ? null : field)}
+            className="flex items-center justify-between w-full text-gray-900 hover:text-blue-600 transition-colors"
+          >
+            <span>{value || 'Select...'}</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isOpen && (
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 mt-1">
+              {options.map(option => (
+                <button
+                  key={option}
+                  onClick={() => handleSingleSelect(field, option)}
+                  className={`w-full text-left px-3 py-2 hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg ${
+                    value === option ? 'bg-blue-50 text-blue-600' : 'text-gray-900'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMultiDropdown = (field: string, values: string[], options: string[], icon: any, label: string) => {
+    const isOpen = showDropdown === field;
+    const displayValue = values?.length > 0 ? values.join(', ') : 'None selected';
+    
+    return (
+      <div className="flex items-center space-x-3">
+        {icon}
+        <div className="flex-1 relative">
+          <p className="text-sm text-gray-500">{label}</p>
+          <button
+            onClick={() => setShowDropdown(isOpen ? null : field)}
+            className="flex items-center justify-between w-full text-gray-900 hover:text-blue-600 transition-colors"
+          >
+            <span className="truncate">{displayValue}</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isOpen && (
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 mt-1">
+              {options.map(option => (
+                <label
+                  key={option}
+                  className="flex items-center px-3 py-2 hover:bg-blue-50 cursor-pointer first:rounded-t-lg last:rounded-b-lg"
+                >
+                  <input
+                    type="checkbox"
+                    checked={values?.includes(option) || false}
+                    onChange={() => handleMultiSelect(field, option)}
+                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-900">{option}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const renderEditableField = (field: string, value: string, icon: any) => {
