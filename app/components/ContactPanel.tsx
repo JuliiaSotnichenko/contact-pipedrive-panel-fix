@@ -10,23 +10,43 @@ export default function ContactPanel() {
   const [newNote, setNewNote] = useState('');
 
   useEffect(() => {
+    console.log('ContactPanel: mounted');
+
     // Listen for messages from Pipedrive
     const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === 'PIPEDRIVE_CONTEXT') {
-        setContactData(event.data.data);
-        setLoading(false);
+      console.log('ContactPanel: received window.message', event?.origin, event?.data);
+      try {
+        const data = event?.data;
+        if (!data) return;
+        // Accept either stringified JSON or structured objects
+        const payload = typeof data === 'string' ? JSON.parse(data) : data;
+        if (payload?.type === 'PIPEDRIVE_CONTEXT' || payload?.type === 'pipedrive.context') {
+          console.log('ContactPanel: setting contactData from Pipedrive payload', payload.data ?? payload);
+          setContactData(payload.data ?? payload);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('ContactPanel: error handling message', err);
       }
     };
 
     window.addEventListener('message', handleMessage);
 
     // Request context from Pipedrive
-    window.parent.postMessage({ type: 'GET_CONTEXT' }, '*');
+    try {
+      console.log('ContactPanel: posting GET_CONTEXT to parent');
+      window.parent.postMessage({ type: 'GET_CONTEXT' }, '*');
+    } catch (err) {
+      console.error('ContactPanel: postMessage failed', err);
+    }
 
-    // Fallback mock data for testing
-    setTimeout(() => {
-      if (loading) {
-        setContactData({
+    // Fallback mock data for testing (only if nothing responds)
+    const fallback = setTimeout(() => {
+      setContactData(prev => {
+        if (prev) return prev;
+        console.log('ContactPanel: using fallback mock data');
+        setLoading(false);
+        return {
           id: 1,
           name: 'John Doe',
           email: 'john.doe@example.com',
@@ -35,13 +55,15 @@ export default function ContactPanel() {
           lastContact: '2025-01-10',
           dealValue: '$15,000',
           status: 'Active'
-        });
-        setLoading(false);
-      }
-    }, 1000);
+        };
+      });
+    }, 1200);
 
-    return () => window.removeEventListener('message', handleMessage);
-  }, [loading]);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      clearTimeout(fallback);
+    };
+  }, []);
 
   const handleAddNote = () => {
     if (newNote.trim()) {
@@ -57,14 +79,14 @@ export default function ContactPanel() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
+      <div className="flex items-center justify-center py-6 bg-gray-50 w-full">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="bg-gray-50 p-6 w-full">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center space-x-4 mb-4">
