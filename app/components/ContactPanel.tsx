@@ -40,6 +40,30 @@ export default function ContactPanel() {
       console.error('ContactPanel: postMessage failed', err);
     }
 
+    // Log location and frame name to help debug host integration
+    try {
+      console.log('ContactPanel: location', window.location.href);
+      console.log('ContactPanel: window.name', window.name);
+    } catch (err) {
+      /* ignore */
+    }
+
+    // Retry posting common GET_CONTEXT variants a few times in case the host
+    // isn't ready immediately or expects a different message type.
+    let attempts = 0;
+    const retry = setInterval(() => {
+      attempts += 1;
+      if (attempts > 6) {
+        clearInterval(retry);
+        return;
+      }
+      console.log('ContactPanel: retrying GET_CONTEXT attempt', attempts);
+      try { window.parent.postMessage({ type: 'GET_CONTEXT' }, '*'); } catch {};
+      try { window.parent.postMessage({ type: 'getContext' }, '*'); } catch {};
+      try { window.parent.postMessage({ type: 'pipedrive.getContext' }, '*'); } catch {};
+      try { window.parent.postMessage({ type: 'REQUEST_CONTEXT' }, '*'); } catch {};
+    }, 1000);
+
     // Fallback mock data for testing (only if nothing responds)
     const fallback = setTimeout(() => {
       setContactData((prev: any) => {
