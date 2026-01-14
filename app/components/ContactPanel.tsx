@@ -47,6 +47,34 @@ export default function ContactPanel() {
           setLoading(false);
           return;
         }
+
+        // If host passed only identifying URL params (resource + id), map them
+        // into a minimal object so the panel shows something instead of the
+        // fallback spinner/error.
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const resource = urlParams.get('resource') || urlParams.get('type');
+          const id = urlParams.get('id') || urlParams.get('identifier') || urlParams.get('resource_id') || urlParams.get('person_id') || urlParams.get('deal_id');
+          if (resource || id) {
+            const mapped: any = {
+              id: id ?? undefined,
+              name: `${resource ?? 'Item'} ${id ?? ''}`.trim(),
+              email: null,
+              phone: null,
+              organization: null,
+              lastContact: null,
+              dealValue: null,
+              status: null,
+              _urlParams: { resource, id }
+            };
+            console.log('ContactPanel: mapped URL params to panel shape', mapped);
+            setContactData(mapped);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          /* ignore */
+        }
       } catch (err) {
         console.error('ContactPanel: error handling message', err);
       }
@@ -56,7 +84,7 @@ export default function ContactPanel() {
 
     // Request context from Pipedrive
     try {
-      console.log('ContactPanel: posting GET_CONTEXT to parent');
+      console.log('ContactPanel: posting GET_CONTEXT to parent check if visible');
       window.parent.postMessage({ type: 'GET_CONTEXT' }, '*');
     } catch (err) {
       console.error('ContactPanel: postMessage failed', err);
@@ -164,6 +192,20 @@ export default function ContactPanel() {
   return (
     <div className="bg-gray-50 p-6 w-full">
       <div className="max-w-2xl mx-auto space-y-6">
+        <div className="bg-white rounded-lg shadow p-4 border border-dashed">
+          <h2 className="text-lg font-semibold mb-2">Test Data</h2>
+          <p className="text-sm text-gray-600">ID: {contactData?.id ?? '—'}</p>
+          <p className="text-sm text-gray-600">Name: {contactData?.name ?? '—'}</p>
+          <p className="text-sm text-gray-600">Status: {contactData?.status ?? contactData?._raw?.status?.label ?? '—'}</p>
+          <p className="text-sm text-gray-600">Deal Value: {contactData?.dealValue ?? (contactData?._raw?.delivery_cost ? `${contactData._raw.delivery_cost.code} ${contactData._raw.delivery_cost.value}` : '—')}</p>
+          <p className="text-sm text-gray-600">Note: {contactData?._raw?.note?.value ?? contactData?._raw?.note ?? '—'}</p>
+          <p className="text-sm text-gray-600">Tracking: {contactData?._raw?.tracking?.value ?? '—'}</p>
+          <details className="mt-2">
+            <summary className="text-sm text-blue-600 cursor-pointer">Raw payload</summary>
+            <pre className="text-xs overflow-auto max-h-48 p-2">{JSON.stringify(contactData?._raw ?? contactData, null, 2)}</pre>
+          </details>
+        </div>
+
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center space-x-4 mb-4">
             <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
