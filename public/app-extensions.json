@@ -1,0 +1,10 @@
+{
+  "panels": [
+    {
+      "name": "Contact Information Panel",
+      "description": "Enhanced contact information and notes",
+      "url": "https://your-app-name.vercel.app/panel",
+      "context": "contact"
+    }
+  ]
+}
