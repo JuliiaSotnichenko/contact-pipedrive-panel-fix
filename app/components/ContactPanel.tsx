@@ -11,12 +11,12 @@ export default function ContactPanel() {
   const [newNote, setNewNote] = useState('');
 
   useEffect(() => {
-    console.log('ContactPanel: mounted');
+    console.log('ContactPanel: mounted - NEW VERSION WITH SDK');
     let sdk: any = null;
 
     const initializeSDK = async () => {
       try {
-        console.log('ContactPanel: initializing Pipedrive SDK');
+        console.log('ContactPanel: initializing Pipedrive SDK - NEW VERSION');
         sdk = await new AppExtensionsSDK().initialize({ size: { height: 600 } });
         console.log('ContactPanel: SDK initialized successfully', sdk);
         
