@@ -42,7 +42,7 @@ export default function ContactPanel() {
 
     // Fallback mock data for testing (only if nothing responds)
     const fallback = setTimeout(() => {
-      setContactData(prev => {
+      setContactData((prev: any) => {
         if (prev) return prev;
         console.log('ContactPanel: using fallback mock data');
         setLoading(false);
