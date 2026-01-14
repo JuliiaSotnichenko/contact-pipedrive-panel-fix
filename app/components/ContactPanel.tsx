@@ -10,6 +10,18 @@ export default function ContactPanel() {
   const [newNote, setNewNote] = useState('');
 
   useEffect(() => {
+    // Helper to request parent to resize iframe - try several common message types
+    const requestResize = (height: number) => {
+      try {
+        window.parent.postMessage({ type: 'SET_HEIGHT', height }, '*');
+      } catch {}
+      try {
+        window.parent.postMessage({ type: 'pipedrive:resize', height }, '*');
+      } catch {}
+      try {
+        window.parent.postMessage({ type: 'resize', height }, '*');
+      } catch {}
+    };
     console.log('ContactPanel: mounted');
 
     // Listen for messages from Pipedrive
@@ -24,6 +36,7 @@ export default function ContactPanel() {
           console.log('ContactPanel: setting contactData from Pipedrive payload', payload.data ?? payload);
           setContactData(payload.data ?? payload);
           setLoading(false);
+          try { requestResize(600); } catch (e) { /* ignore */ }
           return;
         }
 
@@ -45,6 +58,7 @@ export default function ContactPanel() {
           console.log('ContactPanel: mapped host data to panel shape', mapped);
           setContactData(mapped);
           setLoading(false);
+          try { requestResize(600); } catch (e) { /* ignore */ }
           return;
         }
 
@@ -183,14 +197,14 @@ export default function ContactPanel() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-6 bg-gray-50 w-full">
+      <div className="flex items-center justify-center py-6 bg-gray-50 w-full" style={{ minHeight: 350 }}>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 p-6 w-full">
+    <div className="bg-gray-50 p-6 w-full" style={{ minHeight: 420 }}>
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="bg-white rounded-lg shadow p-4 border border-dashed">
           <h2 className="text-lg font-semibold mb-2">Test Data</h2>
