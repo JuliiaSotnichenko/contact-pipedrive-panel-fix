@@ -17,14 +17,14 @@ export default function ContactPanel() {
 
     const initializeSDK = async () => {
       try {
-        console.log('ContactPanel: initializing Pipedrive SDK - CAMPAIGNS VERSION v1.1');
-        sdk = await new AppExtensionsSDK().initialize({ size: { height: 800 } });
+        console.log('ContactPanel: initializing Pipedrive SDK - CAMPAIGNS VERSION v1.2');
+        sdk = await new AppExtensionsSDK().initialize({ size: { height: 750 } });
         console.log('ContactPanel: SDK initialized successfully', sdk);
         
         // Try to resize to ensure panel is visible with new campaigns section
         try {
-          await sdk.execute(Command.RESIZE, { height: 800 });
-          console.log('ContactPanel: resized to 800px for campaigns');
+          await sdk.execute(Command.RESIZE, { height: 750 });
+          console.log('ContactPanel: resized to 750px for campaigns (max allowed)');
         } catch (err) {
           console.error('ContactPanel: resize failed', err);
         }
