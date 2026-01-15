@@ -7,8 +7,6 @@ import AppExtensionsSDK, { Command } from '@pipedrive/app-extensions-sdk';
 export default function ContactPanel() {
   const [contactData, setContactData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [notes, setNotes] = useState<Array<{id: number; text: string; timestamp: string}>>([]);
-  const [newNote, setNewNote] = useState('');
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
@@ -61,7 +59,14 @@ export default function ContactPanel() {
           dealValue: '$15,000',
           status: 'Active',
           hasKids: 'Yes',
-          giftsSent: ['Birthday Card', 'Holiday Gift']
+          giftsSent: ['Birthday Card', 'Holiday Gift'],
+          campaigns: {
+            'Static Display 2026': {
+              inviteSent: true,
+              reminderSent: false,
+              attendedOn: '2026-01-20'
+            }
+          }
         });
         setLoading(false);
       }
@@ -74,16 +79,30 @@ export default function ContactPanel() {
     };
   }, []);
 
-  const handleAddNote = () => {
-    if (newNote.trim()) {
-      const note = {
-        id: Date.now(),
-        text: newNote,
-        timestamp: new Date().toLocaleString()
-      };
-      setNotes([note, ...notes]);
-      setNewNote('');
-    }
+  const handleCampaignCheckbox = (campaignName: string, field: string, value: boolean) => {
+    setContactData((prev: any) => ({
+      ...prev,
+      campaigns: {
+        ...prev.campaigns,
+        [campaignName]: {
+          ...prev.campaigns[campaignName],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleCampaignDate = (campaignName: string, field: string, value: string) => {
+    setContactData((prev: any) => ({
+      ...prev,
+      campaigns: {
+        ...prev.campaigns,
+        [campaignName]: {
+          ...prev.campaigns[campaignName],
+          [field]: value
+        }
+      }
+    }));
   };
 
   const startEdit = (field: string, currentValue: string) => {
@@ -337,46 +356,64 @@ export default function ContactPanel() {
               <p className="text-2xl font-bold text-blue-600">{contactData?.dealValue}</p>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Total Notes</p>
-              <p className="text-2xl font-bold text-purple-600">{notes.length}</p>
+              <p className="text-sm text-gray-600">Active Campaigns</p>
+              <p className="text-2xl font-bold text-purple-600">{contactData?.campaigns ? Object.keys(contactData.campaigns).length : 0}</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <MessageSquare className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Notes</h2>
+          <div className="flex items-center mb-4">
+            <MessageSquare className="w-5 h-5 text-gray-400 mr-2" />
+            <h2 className="text-lg font-semibold text-gray-900">Campaigns</h2>
           </div>
           
-          <div className="space-y-3 mb-4">
-            <textarea
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Add a new note..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={3}
-            />
-            <button
-              onClick={handleAddNote}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-            >
-              Add Note
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {notes.length === 0 ? (
-              <p className="text-center text-gray-500 py-4">No notes yet. Add one above!</p>
-            ) : (
-              notes.map(note => (
-                <div key={note.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <p className="text-gray-900 mb-2">{note.text}</p>
-                  <p className="text-xs text-gray-500">{note.timestamp}</p>
+          {contactData?.campaigns && Object.entries(contactData.campaigns).map(([campaignName, campaign]: [string, any]) => (
+            <div key={campaignName} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="text-md font-semibold text-gray-800 mb-3">{campaignName}</h3>
+              
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id={`${campaignName}-invite`}
+                    checked={campaign.inviteSent || false}
+                    onChange={(e) => handleCampaignCheckbox(campaignName, 'inviteSent', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor={`${campaignName}-invite`} className="text-sm font-medium text-gray-700">
+                    Invite Sent
+                  </label>
                 </div>
-              ))
-            )}
-          </div>
+                
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id={`${campaignName}-reminder`}
+                    checked={campaign.reminderSent || false}
+                    onChange={(e) => handleCampaignCheckbox(campaignName, 'reminderSent', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor={`${campaignName}-reminder`} className="text-sm font-medium text-gray-700">
+                    Reminder Sent
+                  </label>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <label className="text-sm font-medium text-gray-700 min-w-0 flex-shrink-0">
+                    Attended on:
+                  </label>
+                  <input
+                    type="date"
+                    value={campaign.attendedOn || ''}
+                    onChange={(e) => handleCampaignDate(campaignName, 'attendedOn', e.target.value)}
+                    className="flex-1 px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
