@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin, Edit3, Check, X, ChevronDown, Baby, Gift } from 'lucide-react';
+import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin, Edit3, Check, X, ChevronDown, Baby, Gift, Plus } from 'lucide-react';
 import AppExtensionsSDK, { Command } from '@pipedrive/app-extensions-sdk';
 
 export default function ContactPanel() {
@@ -85,7 +85,10 @@ export default function ContactPanel() {
       campaigns: {
         ...prev.campaigns,
         [campaignName]: {
-          ...prev.campaigns[campaignName],
+          inviteSent: false,
+          reminderSent: false,
+          attendedOn: '',
+          ...prev.campaigns?.[campaignName],
           [field]: value
         }
       }
@@ -98,11 +101,31 @@ export default function ContactPanel() {
       campaigns: {
         ...prev.campaigns,
         [campaignName]: {
-          ...prev.campaigns[campaignName],
+          inviteSent: false,
+          reminderSent: false,
+          attendedOn: '',
+          ...prev.campaigns?.[campaignName],
           [field]: value
         }
       }
     }));
+  };
+
+  const openCampaignModal = async () => {
+    try {
+      console.log('Opening campaign modal...');
+      
+      // Simple alert modal for now - can be enhanced with proper Pipedrive modal later
+      const result = confirm(`Campaign: Static Display 2026\n\nCurrent Status:\n- Invite Sent: ${contactData?.campaigns?.['Static Display 2026']?.inviteSent ? 'Yes' : 'No'}\n- Reminder Sent: ${contactData?.campaigns?.['Static Display 2026']?.reminderSent ? 'Yes' : 'No'}\n- Attended: ${contactData?.campaigns?.['Static Display 2026']?.attendedOn || 'Not set'}\n\nClick OK to toggle invite status, Cancel to close.`);
+      
+      if (result) {
+        // Toggle invite sent status as demo
+        handleCampaignCheckbox('Static Display 2026', 'inviteSent', !contactData?.campaigns?.['Static Display 2026']?.inviteSent);
+        console.log('Campaign invite status toggled');
+      }
+    } catch (error) {
+      console.error('Modal failed:', error);
+    }
   };
 
   const startEdit = (field: string, currentValue: string) => {
@@ -363,9 +386,18 @@ export default function ContactPanel() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center mb-4">
-            <MessageSquare className="w-5 h-5 text-gray-400 mr-2" />
-            <h2 className="text-lg font-semibold text-gray-900">Campaigns</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <MessageSquare className="w-5 h-5 text-gray-400 mr-2" />
+              <h2 className="text-lg font-semibold text-gray-900">Campaigns</h2>
+            </div>
+            <button 
+              onClick={openCampaignModal}
+              className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Edit Details</span>
+            </button>
           </div>
           
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
