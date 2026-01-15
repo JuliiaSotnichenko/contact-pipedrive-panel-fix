@@ -368,52 +368,50 @@ export default function ContactPanel() {
             <h2 className="text-lg font-semibold text-gray-900">Campaigns</h2>
           </div>
           
-          {contactData?.campaigns && Object.entries(contactData.campaigns).map(([campaignName, campaign]: [string, any]) => (
-            <div key={campaignName} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-md font-semibold text-gray-800 mb-3">{campaignName}</h3>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <h3 className="text-md font-semibold text-gray-800 mb-3">Static Display 2026</h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="static-display-invite"
+                  checked={contactData?.campaigns?.['Static Display 2026']?.inviteSent || false}
+                  onChange={(e) => handleCampaignCheckbox('Static Display 2026', 'inviteSent', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="static-display-invite" className="text-sm font-medium text-gray-700">
+                  Invite Sent
+                </label>
+              </div>
               
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id={`${campaignName}-invite`}
-                    checked={campaign.inviteSent || false}
-                    onChange={(e) => handleCampaignCheckbox(campaignName, 'inviteSent', e.target.checked)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor={`${campaignName}-invite`} className="text-sm font-medium text-gray-700">
-                    Invite Sent
-                  </label>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id={`${campaignName}-reminder`}
-                    checked={campaign.reminderSent || false}
-                    onChange={(e) => handleCampaignCheckbox(campaignName, 'reminderSent', e.target.checked)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor={`${campaignName}-reminder`} className="text-sm font-medium text-gray-700">
-                    Reminder Sent
-                  </label>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <label className="text-sm font-medium text-gray-700 min-w-0 flex-shrink-0">
-                    Attended on:
-                  </label>
-                  <input
-                    type="date"
-                    value={campaign.attendedOn || ''}
-                    onChange={(e) => handleCampaignDate(campaignName, 'attendedOn', e.target.value)}
-                    className="flex-1 px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="static-display-reminder"
+                  checked={contactData?.campaigns?.['Static Display 2026']?.reminderSent || false}
+                  onChange={(e) => handleCampaignCheckbox('Static Display 2026', 'reminderSent', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="static-display-reminder" className="text-sm font-medium text-gray-700">
+                  Reminder Sent
+                </label>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <label className="text-sm font-medium text-gray-700 min-w-0 flex-shrink-0">
+                  Attended on:
+                </label>
+                <input
+                  type="date"
+                  value={contactData?.campaigns?.['Static Display 2026']?.attendedOn || ''}
+                  onChange={(e) => handleCampaignDate('Static Display 2026', 'attendedOn', e.target.value)}
+                  className="flex-1 px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
