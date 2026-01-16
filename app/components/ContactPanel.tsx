@@ -3,13 +3,27 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, Building2, Calendar, MessageSquare, MapPin, Edit3, Check, X, ChevronDown, Baby, Gift, Plus } from 'lucide-react';
 import AppExtensionsSDK, { Command } from '@pipedrive/app-extensions-sdk';
+import CampaignModal from './CampaignModal';
+import CampaignItem from './CampaignItem';
+
+interface Campaign {
+  id: string;
+  name: string;
+  type: string;
+  inviteSent?: boolean;
+  reminderSent?: boolean;
+  attendedOn?: string;
+  createdAt?: string;
+}
 
 export default function ContactPanel() {
   const [contactData, setContactData] = useState<any>(null);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
+  const [showCampaignModal, setShowCampaignModal] = useState(false);
 
   useEffect(() => {
     console.log('ContactPanel: mounted - NEW VERSION WITH SDK');
@@ -111,21 +125,40 @@ export default function ContactPanel() {
     }));
   };
 
-  const openCampaignModal = async () => {
-    try {
-      console.log('Opening campaign modal...');
-      
-      // Simple alert modal for now - can be enhanced with proper Pipedrive modal later
-      const result = confirm(`Campaign: Static Display 2026\n\nCurrent Status:\n- Invite Sent: ${contactData?.campaigns?.['Static Display 2026']?.inviteSent ? 'Yes' : 'No'}\n- Reminder Sent: ${contactData?.campaigns?.['Static Display 2026']?.reminderSent ? 'Yes' : 'No'}\n- Attended: ${contactData?.campaigns?.['Static Display 2026']?.attendedOn || 'Not set'}\n\nClick OK to toggle invite status, Cancel to close.`);
-      
-      if (result) {
-        // Toggle invite sent status as demo
-        handleCampaignCheckbox('Static Display 2026', 'inviteSent', !contactData?.campaigns?.['Static Display 2026']?.inviteSent);
-        console.log('Campaign invite status toggled');
-      }
-    } catch (error) {
-      console.error('Modal failed:', error);
-    }
+  const handleAddCampaign = (name: string, type: string) => {
+    const newCampaign: Campaign = {
+      id: Date.now().toString(),
+      name,
+      type,
+      inviteSent: false,
+      reminderSent: false,
+      attendedOn: '',
+      createdAt: new Date().toISOString()
+    };
+    setCampaigns([...campaigns, newCampaign]);
+  };
+
+  const handleDeleteCampaign = (id: string) => {
+    setCampaigns(campaigns.filter(c => c.id !== id));
+  };
+
+  const handleUpdateCampaign = (id: string, field: string, value: any) => {
+    setCampaigns(campaigns.map(c =>
+      c.id === id ? { ...c, [field]: value } : c
+    ));
+  };
+
+  const handleDuplicateCampaign = (campaign: Campaign) => {
+    const newCampaign: Campaign = {
+      ...campaign,
+      id: Date.now().toString(),
+      name: `${campaign.name} (Copy)`,
+      createdAt: new Date().toISOString(),
+      inviteSent: false,
+      reminderSent: false,
+      attendedOn: ''
+    };
+    setCampaigns([...campaigns, newCampaign]);
   };
 
   const startEdit = (field: string, currentValue: string) => {
@@ -380,7 +413,7 @@ export default function ContactPanel() {
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
               <p className="text-sm text-gray-600">Active Campaigns</p>
-              <p className="text-2xl font-bold text-purple-600">{contactData?.campaigns ? Object.keys(contactData.campaigns).length : 0}</p>
+              <p className="text-2xl font-bold text-purple-600">{campaigns.length}</p>
             </div>
           </div>
         </div>
@@ -392,59 +425,39 @@ export default function ContactPanel() {
               <h2 className="text-lg font-semibold text-gray-900">Campaigns</h2>
             </div>
             <button 
-              onClick={openCampaignModal}
+              onClick={() => setShowCampaignModal(true)}
               className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
             >
               <Plus className="w-4 h-4" />
-              <span>Edit Details</span>
+              <span>Add Campaign</span>
             </button>
           </div>
           
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <h3 className="text-md font-semibold text-gray-800 mb-3">Static Display 2026</h3>
-            
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id="static-display-invite"
-                  checked={contactData?.campaigns?.['Static Display 2026']?.inviteSent || false}
-                  onChange={(e) => handleCampaignCheckbox('Static Display 2026', 'inviteSent', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="static-display-invite" className="text-sm font-medium text-gray-700">
-                  Invite Sent
-                </label>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id="static-display-reminder"
-                  checked={contactData?.campaigns?.['Static Display 2026']?.reminderSent || false}
-                  onChange={(e) => handleCampaignCheckbox('Static Display 2026', 'reminderSent', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="static-display-reminder" className="text-sm font-medium text-gray-700">
-                  Reminder Sent
-                </label>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <label className="text-sm font-medium text-gray-700 min-w-0 flex-shrink-0">
-                  Attended on:
-                </label>
-                <input
-                  type="date"
-                  value={contactData?.campaigns?.['Static Display 2026']?.attendedOn || ''}
-                  onChange={(e) => handleCampaignDate('Static Display 2026', 'attendedOn', e.target.value)}
-                  className="flex-1 px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+          {campaigns.length === 0 ? (
+            <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
+              <MessageSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">No campaigns yet. Click "Add Campaign" to get started.</p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-3">
+              {campaigns.map(campaign => (
+                <CampaignItem
+                  key={campaign.id}
+                  campaign={campaign}
+                  onDelete={handleDeleteCampaign}
+                  onUpdate={handleUpdateCampaign}
+                  onDuplicate={handleDuplicateCampaign}
+                />
+              ))}
+            </div>
+          )}
         </div>
+
+        <CampaignModal 
+          isOpen={showCampaignModal}
+          onClose={() => setShowCampaignModal(false)}
+          onAddCampaign={handleAddCampaign}
+        />
       </div>
     </div>
   );
