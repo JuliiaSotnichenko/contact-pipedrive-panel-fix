@@ -43,20 +43,20 @@ export default function CampaignItem({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200 bg-white">
+    <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 bg-white">
       {/* Campaign Header */}
-      <div className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="flex-1 flex items-center space-x-4">
+      <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="flex-1 flex items-center space-x-3">
           <ChevronDown
-            className={`w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
           />
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 leading-tight">{campaign.name}</h3>
+            <h3 className="text-base font-bold text-gray-900 leading-tight">{campaign.name}</h3>
             <p className="text-sm text-gray-500 font-medium">{campaign.type}</p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4 ml-4 flex-shrink-0">
+        <div className="flex items-center space-x-3 ml-3 flex-shrink-0">
           {getStatusBadge()}
           
           <div className="relative">
@@ -103,17 +103,17 @@ export default function CampaignItem({
 
       {/* Campaign Details (Expanded) */}
       {isExpanded && (
-        <div className="border-t border-gray-200 px-5 py-5 bg-white space-y-5">
+        <div className="border-t border-gray-200 px-4 py-4 bg-gray-50 space-y-4">
           {/* Campaign Type Info */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Campaign Type</p>
-              <p className="text-base font-semibold text-gray-900 mt-2">{campaign.type}</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Campaign Type</p>
+              <p className="text-sm font-semibold text-gray-900 mt-1">{campaign.type}</p>
             </div>
             {campaign.createdAt && (
               <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Created</p>
-                <p className="text-base font-semibold text-gray-900 mt-2">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Created</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">
                   {new Date(campaign.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                 </p>
               </div>
@@ -121,41 +121,41 @@ export default function CampaignItem({
           </div>
 
           {/* Checkboxes */}
-          <div className="border-t border-gray-200 pt-5 space-y-4">
-            <label className="flex items-center space-x-3 cursor-pointer group">
+          <div className="border-t border-gray-200 pt-4 space-y-3">
+            <label className="flex items-center space-x-2 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={campaign.inviteSent || false}
                 onChange={(e) => onUpdate(campaign.id, 'inviteSent', e.target.checked)}
-                className="w-5 h-5 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 rounded transition-colors cursor-pointer"
+                className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 rounded transition-colors cursor-pointer"
               />
-              <span className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                 Invite Sent
               </span>
             </label>
 
-            <label className="flex items-center space-x-3 cursor-pointer group">
+            <label className="flex items-center space-x-2 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={campaign.reminderSent || false}
                 onChange={(e) => onUpdate(campaign.id, 'reminderSent', e.target.checked)}
-                className="w-5 h-5 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 rounded transition-colors cursor-pointer"
+                className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 rounded transition-colors cursor-pointer"
               />
-              <span className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                 Reminder Sent
               </span>
             </label>
 
             {/* Attended Date */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <input
                 type="date"
                 value={campaign.attendedOn || ''}
                 onChange={(e) => onUpdate(campaign.id, 'attendedOn', e.target.value)}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="mm/dd/yyyy"
               />
-              <label className="text-base font-semibold text-gray-900 whitespace-nowrap">Attended on</label>
+              <label className="text-sm font-semibold text-gray-900 whitespace-nowrap">Attended on</label>
             </div>
           </div>
         </div>
