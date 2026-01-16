@@ -419,14 +419,14 @@ export default function ContactPanel() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <MessageSquare className="w-5 h-5 text-gray-400 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Campaigns</h2>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center space-x-2">
+              <MessageSquare className="w-6 h-6 text-gray-700" />
+              <h2 className="text-xl font-bold text-gray-900">Campaigns</h2>
             </div>
             <button 
               onClick={() => setShowCampaignModal(true)}
-              className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              className="flex items-center space-x-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-semibold shadow-md hover:shadow-lg text-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Add Campaign</span>
@@ -434,9 +434,9 @@ export default function ContactPanel() {
           </div>
           
           {campaigns.length === 0 ? (
-            <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
-              <MessageSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-500 text-sm">No campaigns yet. Click "Add Campaign" to get started.</p>
+            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
+              <MessageSquare className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-500 font-medium">No campaigns yet. Click "Add Campaign" to get started.</p>
             </div>
           ) : (
             <div className="space-y-3">
