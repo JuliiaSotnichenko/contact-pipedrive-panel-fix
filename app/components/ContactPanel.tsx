@@ -426,7 +426,7 @@ export default function ContactPanel() {
             </div>
             <button 
               onClick={() => setShowCampaignModal(true)}
-              className="flex items-center space-x-1.5 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-semibold text-sm hover:shadow-md"
+              className="flex items-center space-x-1.5 px-4 py-2.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors font-semibold text-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Add Campaign</span>

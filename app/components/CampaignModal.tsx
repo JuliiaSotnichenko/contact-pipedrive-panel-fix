@@ -121,7 +121,7 @@ export default function CampaignModal({ isOpen, onClose, onAddCampaign }: Campai
           <div className="flex items-center space-x-2 pt-4 border-t border-gray-200">
             <button
               type="submit"
-              className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-bold hover:shadow-md text-sm"
+              className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-2.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors font-semibold text-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Add Campaign</span>
