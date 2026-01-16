@@ -419,27 +419,18 @@ export default function ContactPanel() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <MessageSquare className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-bold text-gray-900">Marketing Campaigns</h2>
-            </div>
-            <button 
-              onClick={() => setShowCampaignModal(true)}
-              className="flex items-center space-x-1.5 px-4 py-2.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors font-semibold text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Campaign</span>
-            </button>
+          <div className="flex items-center space-x-2 mb-4">
+            <MessageSquare className="w-5 h-5 text-gray-600" />
+            <h2 className="text-lg font-bold text-gray-900">Marketing Campaigns</h2>
           </div>
           
           {campaigns.length === 0 ? (
-            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
+            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200 mb-4">
               <MessageSquare className="w-10 h-10 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-500 font-medium">No campaigns yet. Click "Add Campaign" to get started.</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 mb-4">
               {campaigns.map(campaign => (
                 <CampaignItem
                   key={campaign.id}
@@ -451,6 +442,14 @@ export default function ContactPanel() {
               ))}
             </div>
           )}
+
+          <button 
+            onClick={() => setShowCampaignModal(true)}
+            className="w-full flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors font-semibold text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Campaign</span>
+          </button>
         </div>
 
         <CampaignModal 
