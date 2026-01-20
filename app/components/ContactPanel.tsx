@@ -24,6 +24,8 @@ export default function ContactPanel() {
   const [editValue, setEditValue] = useState('');
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
   const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'owner' | 'user'>('user');
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     console.log('ContactPanel: mounted - NEW VERSION WITH SDK');
@@ -43,30 +45,21 @@ export default function ContactPanel() {
           console.error('ContactPanel: resize failed', err);
         }
 
+        // Load user role from settings
+        const savedSettings = localStorage.getItem('appSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.userRole) {
+            setUserRole(settings.userRole);
+          }
+        }
+
         // Load data from fallback for testing
         setContactData({
           id: 1,
           name: 'Jetflier',
-          email: 'j***@*****.com',
-          phone: '+1 ***-***-8900',
-          organization: 'Acme Corporation',
-          address: '123 Business St, Suite 100, New York, NY 10001',
-          lastContact: '2025-01-10',
-          dealValue: '$15,000',
-          status: 'Active',
-          hasKids: 'Yes',
-          giftsSent: ['Birthday Card', 'Holiday Gift']
-        });
-        setLoading(false);
-        console.log('ContactPanel: data set and loading complete');
-      } catch (err) {
-        console.error('ContactPanel: SDK initialization failed', err);
-        // Set fallback data anyway
-        setContactData({
-          id: 1,
-          name: 'Jetflier (Fallback)',
-          email: 'j***@*****.com',
-          phone: '+1 ***-***-8900',
+          email: 'jetflier@example.com',
+          phone: '+1 555-123-8900',
           organization: 'Acme Corporation',
           address: '123 Business St, Suite 100, New York, NY 10001',
           lastContact: '2025-01-10',
@@ -74,6 +67,36 @@ export default function ContactPanel() {
           status: 'Active',
           hasKids: 'Yes',
           giftsSent: ['Birthday Card', 'Holiday Gift'],
+          ownerId: 1 // Same as current user for demo
+        });
+        setIsOwner(true); // For demo purposes
+        setLoading(false);
+        console.log('ContactPanel: data set and loading complete');
+      } catch (err) {
+        console.error('ContactPanel: SDK initialization failed', err);
+        // Load user role from settings
+        const savedSettings = localStorage.getItem('appSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.userRole) {
+            setUserRole(settings.userRole);
+          }
+        }
+
+        // Set fallback data anyway
+        setContactData({
+          id: 1,
+          name: 'Jetflier (Fallback)',
+          email: 'jetflier@example.com',
+          phone: '+1 555-123-8900',
+          organization: 'Acme Corporation',
+          address: '123 Business St, Suite 100, New York, NY 10001',
+          lastContact: '2025-01-10',
+          dealValue: '$15,000',
+          status: 'Active',
+          hasKids: 'Yes',
+          giftsSent: ['Birthday Card', 'Holiday Gift'],
+          ownerId: 1,
           campaigns: {
             'Static Display 2026': {
               inviteSent: true,
@@ -82,6 +105,7 @@ export default function ContactPanel() {
             }
           }
         });
+        setIsOwner(true);
         setLoading(false);
       }
     };
@@ -201,6 +225,26 @@ export default function ContactPanel() {
         [field]: newValues
       };
     });
+  };
+
+  const canViewSensitiveInfo = () => {
+    return userRole === 'admin' || isOwner;
+  };
+
+  const maskSensitiveData = (value: string, type: 'email' | 'phone') => {
+    if (!value) return '';
+    if (type === 'email') {
+      const [local, domain] = value.split('@');
+      if (!domain) return value;
+      return `${local[0]}***@***${domain.slice(domain.lastIndexOf('.'))}`;
+    }
+    if (type === 'phone') {
+      // Keep first 3 and last 4 digits, mask the rest
+      const digits = value.replace(/\D/g, '');
+      if (digits.length <= 7) return '***-****';
+      return value.replace(/\d(?=\d{4})/g, '*');
+    }
+    return value;
   };
 
   const renderSingleDropdown = (field: string, value: string, options: string[], icon: any, label: string) => {
@@ -376,8 +420,28 @@ export default function ContactPanel() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            {renderEditableField('email', contactData?.email, <Mail className="w-5 h-5 text-gray-400" />)}
-            {renderEditableField('phone', contactData?.phone, <Phone className="w-5 h-5 text-gray-400" />)}
+            {canViewSensitiveInfo() ? (
+              renderEditableField('email', contactData?.email, <Mail className="w-5 h-5 text-gray-400" />)
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-gray-900">{maskSensitiveData(contactData?.email, 'email')}</p>
+                </div>
+              </div>
+            )}
+            {canViewSensitiveInfo() ? (
+              renderEditableField('phone', contactData?.phone, <Phone className="w-5 h-5 text-gray-400" />)
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-gray-900">{maskSensitiveData(contactData?.phone, 'phone')}</p>
+                </div>
+              </div>
+            )}
             {renderEditableField('organization', contactData?.organization, <Building2 className="w-5 h-5 text-gray-400" />)}
             {renderEditableField('address', contactData?.address, <MapPin className="w-5 h-5 text-gray-400" />)}
             {renderEditableField('lastContact', contactData?.lastContact, <Calendar className="w-5 h-5 text-gray-400" />)}

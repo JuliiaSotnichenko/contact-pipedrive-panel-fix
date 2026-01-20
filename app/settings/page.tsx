@@ -13,6 +13,7 @@ export default function SettingsPage() {
     enableNotifications: true,
     defaultCampaignType: 'Marketing Campaign',
     autoSyncInterval: '30',
+    userRole: 'user' as 'admin' | 'owner' | 'user',
   });
 
   useEffect(() => {
@@ -95,6 +96,25 @@ export default function SettingsPage() {
               </h2>
               
               <div className="space-y-4">
+                <div>
+                  <label htmlFor="userRole" className="block text-sm font-semibold text-gray-900 mb-2">
+                    User Role (for testing)
+                  </label>
+                  <select
+                    id="userRole"
+                    value={settings.userRole}
+                    onChange={(e) => setSettings({ ...settings, userRole: e.target.value as 'admin' | 'owner' | 'user' })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="user">Regular User</option>
+                    <option value="owner">Record Owner</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Change this to test visibility of email and phone fields. Only Admins and Record Owners can see full contact details.
+                  </p>
+                </div>
+
                 <div>
                   <label htmlFor="apiKey" className="block text-sm font-semibold text-gray-900 mb-2">
                     API Key
